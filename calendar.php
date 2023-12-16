@@ -113,6 +113,29 @@ p {
 }
 </style>
 </head>
+
+<?php
+
+	// check if the user specified a starting month, if so, start the calendar with that month by setting up an array of month numbers
+	// that the calendar generator can iterate to; if not, start with January (1)
+	if (isset($_GET['month'])) {
+
+		$start_month = $_GET['month'];
+	} else {
+
+		$start_month = 1;
+	}
+
+	$month_array = [];
+	$i = 0;
+	while ($i < 12) {
+		$month_array[] = $start_month;
+		$start_month += 1;
+		if ($start_month > 12) $start_month = 1;
+		$i += 1;
+	}
+?>
+
 <body>
 <div id="info">
 <p>👋 <strong>Hello!</strong> If you print this page, you’ll get a nifty calendar that displays all of the year’s dates on a single page. It will automatically fit on a single sheet of paper of any size. For best results, adjust your print settings to landscape orientation and disable the header and footer.</p>
@@ -125,12 +148,20 @@ $now = isset($_REQUEST['year']) ? strtotime($_REQUEST['year'].'-01-01') : time()
 $dates = array();
 $month = 1;
 $day = 1;
-echo '<p>'.date('Y', $now).'</p>';
+
+$year = date('Y', $now);
+$next_year = (int)$year + 1;
+
+if ($start_month == 1) {
+	echo '<p>'.date('Y', $now).'</p>';
+} else {
+	echo '<p>'.date('Y', $now).'&ndash;'.(string)$next_year.'</p>';
+}
 echo '<table>';
 echo '<thead>';
 echo '<tr>';
 // Add the month headings
-for($i = 1; $i <= 12; $i++) {
+foreach($month_array as $i) {
 	echo '<th>'.DateTime::createFromFormat('!m', $i)->format('M').'</th>';
 }
 echo '</tr>';
@@ -146,8 +177,10 @@ for($x = 1; $x <= 12; $x++) {
 	$$x = false; // Set a flag for each month so we can track first days below
 }
 
+
+
 // Start the loop around 12 months
-while($month <= 12) {
+foreach($month_array as $month) {
 	$day = 1;
 	for($x = 1; $x <= 42; $x++) {
 		if(!$$month) {
@@ -185,7 +218,7 @@ if(isset($_REQUEST['layout']) && $_REQUEST['layout'] == 'aligned-weekdays') {
 	while($day <= 42) {
 		echo '<tr>';
 		// Start the inner loop around 12 months
-		while($month <= 12) {
+		foreach($month_array as $month) {
 			if($dates[$month][$day] == 0) {
 				echo '<td></td>';
 			}
@@ -215,7 +248,7 @@ else {
 	while($day <= 31) {
 		echo '<tr>';
 		// Start the inner loop around 12 months
-		while($month <= 12) {
+		foreach($month_array as $month) {
 			// If we’ve reached a point in the date matrix where the resulting date would be invalid (e.g. February 30th), leave the cell blank
 			if($day > cal_days_in_month(CAL_GREGORIAN, $month, date('Y', $now))) {
 				echo '<td></td>';
