@@ -134,6 +134,8 @@ p {
 		if ($start_month > 12) $start_month = 1;
 		$i += 1;
 	}
+
+	// N.B.: once we're done the loop, $start_month will be back to it's original value so we can use it later on
 ?>
 
 <body>
@@ -223,8 +225,11 @@ if(isset($_REQUEST['layout']) && $_REQUEST['layout'] == 'aligned-weekdays') {
 				echo '<td></td>';
 			}
 			else {
-				
-				$date = date('Y', $now).'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($dates[$month][$day], 2, '0', STR_PAD_LEFT);
+				if ($month < $start_month) {
+					$date = (string)((int)date('Y', $now)+1).'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($dates[$month][$day], 2, '0', STR_PAD_LEFT);
+				} else {
+					$date = date('Y', $now).'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($dates[$month][$day], 2, '0', STR_PAD_LEFT);
+				}
 				if(date('N', strtotime($date)) == '7') {
 					echo '<td class="weekend">';
 				}
@@ -249,6 +254,14 @@ else {
 		echo '<tr>';
 		// Start the inner loop around 12 months
 		foreach($month_array as $month) {
+
+			if ($month < $start_month) {
+				$date_time_var = DateTime::createFromFormat('!Y-m-d', (string)((int)date('Y', $now)+1).'-'.$month.'-'.$day);
+			} else {
+				$date_time_var = DateTime::createFromFormat('!Y-m-d', date('Y', $now).'-'.$month.'-'.$day);
+			}
+			
+
 			// If we’ve reached a point in the date matrix where the resulting date would be invalid (e.g. February 30th), leave the cell blank
 			if($day > cal_days_in_month(CAL_GREGORIAN, $month, date('Y', $now))) {
 				echo '<td></td>';
@@ -256,14 +269,14 @@ else {
 				continue;
 			}
 			// If the day falls on a weekend, apply a specific class for styles
-			if(DateTime::createFromFormat('!Y-m-d', date('Y', $now).'-'.$month.'-'.$day)->format('N') == 6 || DateTime::createFromFormat('!Y-m-d', date('Y', $now).'-'.$month.'-'.$day)->format('N') == 7) {
+			if($date_time_var->format('N') == 6 || $date_time_var->format('N') == 7) {
 				echo '<td class="weekend">';
 			}
 			else {
 				echo '<td>';
 			}
 			// Display the day number and day of the week
-			echo '<span class="date">'.$day.'</span> <span class="day">'.substr(DateTime::createFromFormat('!Y-m-d', date('Y', $now).'-'.$month.'-'.$day)->format('D'), 0, 1).'</span>';
+			echo '<span class="date">'.$day.'</span> <span class="day">'.substr($date_time_var->format('D'), 0, 1).'</span>';
 			echo '</td>';
 			$month++;
 		}
