@@ -97,10 +97,10 @@ p {
 	left: 0;
 	margin: 5em 2em;
 	width: calc(100% - 6em);
-	background: #333;
-	color: #eee;
+	background: rgba(128, 128, 128, 0.5);
+	color: #333;
 	padding: 1em 1em .5em 1em;
-	font-size: 2vmax;
+	font-size: 1vmax;
 	border-radius: .2em;
 }
 #info p {
@@ -142,7 +142,8 @@ p {
 <div id="info">
 <p>👋 <strong>Hello!</strong> If you print this page, you’ll get a nifty calendar that displays all of the year’s dates on a single page. It will automatically fit on a single sheet of paper of any size. For best results, adjust your print settings to landscape orientation and disable the header and footer.</p>
 <p>Take in the year all at once. Fold it up and carry it with you. Jot down your notes on it. Plan things out and observe the passage of time. Above all else, be kind to others.</p>
-<p style="font-size: 80%; color: #999;">Made by <a href="https://neatnik.net/">Neatnik</a> &#183; Source on <a href="https://github.com/neatnik/calendar">GitHub</a></p>
+<p style="font-size: 80%; color: #666;">Made by <a href="https://neatnik.net/">Neatnik</a> &#183; Added to by <a href="https://garethgilson.com/">Gareth</a> &#183; Source on <a href="https://github.com/garethgilson/calendar">GitHub</a></p>
+Calendar Title: <input type="text" id="form_title" onblur="changeTitle()" />
 </div>
 <?php
 date_default_timezone_set('UTC');
@@ -155,9 +156,9 @@ $year = date('Y', $now);
 $next_year = (int)$year + 1;
 
 if ($start_month == 1) {
-	echo '<p>'.date('Y', $now).'</p>';
+	echo '<p><span class="title"></span>'.date('Y', $now).'</p>';
 } else {
-	echo '<p>'.date('Y', $now).'&ndash;'.(string)$next_year.'</p>';
+	echo '<p><span id="title"></span>'.date('Y', $now).'&ndash;'.(string)$next_year.'</p>';
 }
 echo '<table>';
 echo '<thead>';
@@ -290,4 +291,11 @@ else {
 </tbody>
 </table>
 </body>
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+<script lang="javascript">
+	function changeTitle() {
+		var title = $('#form_title').val();
+		$('#title').html(title + ' ');
+	}
+</script>
 </html>
